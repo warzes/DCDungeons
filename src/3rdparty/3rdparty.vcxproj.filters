@@ -59,5 +59,6 @@
     <ClInclude Include="raylib\utils.h">
       <Filter>raylib</Filter>
     </ClInclude>
+    <ClInclude Include="RaylibOperators.h" />
   </ItemGroup>
 </Project>

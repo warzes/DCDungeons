@@ -1,4 +1,6 @@
 ﻿#include "stdafx.h"
+#include "Engine.h"
+#include "Game.h"
 //-----------------------------------------------------------------------------
 #if defined(_MSC_VER)
 #	pragma comment( lib, "winmm.lib" )
@@ -18,30 +20,47 @@ extern "C"
 }
 #endif
 //-----------------------------------------------------------------------------
+#if defined(__EMSCRIPTEN__)
+void UpdateFrame()
+{
+	if (!gEngine->BeginUpdate())
+	{
+		emscripten_cancel_main_loop();
+		return;
+	}
+	gGame->Frame();
+	gGame->Update();
+	gEngine->EndUpdate();
+}
+#endif
+//-----------------------------------------------------------------------------
 int main(
 	[[maybe_unused]] int   argc,
 	[[maybe_unused]] char* argv[])
 {
-	const int screenWidth = 1024;
-	const int screenHeight = 768;
-	InitWindow(screenWidth, screenHeight, "Game");
-	SetTargetFPS(60);
-	SetWindowState(FLAG_WINDOW_RESIZABLE);
-	//SetExitKey(0);
+	constexpr auto getConfig = []() { return EngineCreateInfo {
+			.width = 1024,
+			.height = 768,
+			.title = "Game",
+		};
+	};
 
+	Engine engine;
+
+	if (engine.Init(getConfig()))
 	{
-		while (!WindowShouldClose())
+		Game game;
+#if defined(__EMSCRIPTEN__)
+		emscripten_set_main_loop(UpdateFrame, 0, 1);
+#else
+		while (engine.BeginUpdate())
 		{
-			BeginDrawing();
-
-			ClearBackground(RAYWHITE);
-
-			DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-			EndDrawing();
+			game.Frame();
+			game.Update();
+			engine.EndUpdate();
 		}
+#endif
 	}
-
-	rCloseWindow();
+	engine.Close();
 }
 //-----------------------------------------------------------------------------

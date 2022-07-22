@@ -175,6 +175,7 @@
     <ClCompile Include="raylib\utils.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RaylibOperators.h" />
     <ClInclude Include="raylib\config.h" />
     <ClInclude Include="raylib\easings.h" />
     <ClInclude Include="raylib\raylib.h" />
